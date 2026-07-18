@@ -1,0 +1,59 @@
+FROM ubuntu:22.04
+
+LABEL description="iOSMonitor Tweak Build Environment (Linux + Theos)"
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV THEOS=/opt/theos
+ENV PATH=$THEOS/bin:$PATH
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    perl \
+    python3 \
+    make \
+    curl \
+    wget \
+    xz-utils \
+    libssl-dev \
+    libplist-dev \
+    clang \
+    llvm \
+    lld \
+    gcc \
+    g++ \
+    pkg-config \
+    libtool \
+    automake \
+    autoconf \
+    libbz2-dev \
+    zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Theos
+RUN git clone --recursive https://github.com/theos/theos.git $THEOS
+
+# Install ldid (Linux port for code signing)
+RUN cd /tmp && \
+    git clone https://github.com/ProcursusTeam/ldid.git && \
+    cd ldid && \
+    make -j$(nproc) && \
+    cp ldid $THEOS/bin/ldid && \
+    rm -rf /tmp/ldid
+
+# Install iOS SDK (16.5 - compatible with iOS 17/18 compilation)
+# These are pre-extracted SDKs from Xcode
+RUN cd /tmp && \
+    wget -q https://github.com/xybp888/iOS-SDKs/releases/download/iOS16.5_iOS17.0_17.5/iOS16.5.sdk.zip && \
+    unzip -q iOS16.5.sdk.zip -d $THEOS/sdks/ && \
+    rm -f iOS16.5.sdk.zip
+
+# Set up Theos environment
+RUN echo 'export THEOS=/opt/theos' >> /etc/profile.d/theos.sh && \
+    echo 'export PATH=$THEOS/bin:$PATH' >> /etc/profile.d/theos.sh && \
+    chmod +x /etc/profile.d/theos.sh
+
+WORKDIR /build
+COPY . .
+
+CMD ["make", "clean", "package"]

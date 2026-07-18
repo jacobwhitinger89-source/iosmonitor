@@ -1,0 +1,9 @@
+Package: com.iosmonitor.tweak
+Name: iOSMonitor
+Version: 1.0.0
+Architecture: iphoneos-arm64
+Description: Full device monitoring daemon + tweak
+Maintainer: iOSMonitor
+Author: iOSMonitor
+Section: Utilities
+Depends: firmware (>= 14.0), mobilesubstrate

