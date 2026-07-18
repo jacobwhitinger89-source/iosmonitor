@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iOS Monitor Dashboard</title>
+<title>iOS Monitor</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div id="sidebar">
   <h1>iOS Monitor</h1>
   <div id="status-bar">
     <div id="ws-status" class="status-dot disconnected"></div>
-    <span id="ws-label">Disconnected</span>
+    <span id="ws-label">Starting...</span>
   </div>
   <div id="summary-stats"></div>
   <nav id="nav">
@@ -25,11 +25,9 @@
     <a href="#" data-section="network">Network</a>
     <a href="#" data-section="keystrokes">Keystrokes</a>
     <a href="#" data-section="notifications">Notifications</a>
-    <a href="#" data-section="clipboard">Clipboard</a>
-    <a href="#" data-section="device">Device Status</a>
   </nav>
   <div id="search-box">
-    <input type="text" id="search-input" placeholder="Search messages, URLs, apps...">
+    <input type="text" id="search-input" placeholder="Search...">
   </div>
 </div>
 <div id="main">
@@ -42,11 +40,8 @@
   <div id="section-network" class="section"></div>
   <div id="section-keystrokes" class="section"></div>
   <div id="section-notifications" class="section"></div>
-  <div id="section-clipboard" class="section"></div>
-  <div id="section-device" class="section"></div>
 </div>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="/static/app.js"></script>
+<script src="/app.js"></script>
 </body>
 </html>
