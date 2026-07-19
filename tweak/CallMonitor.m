@@ -1,5 +1,5 @@
 #import "include/monitor.h"
-#import <CoreTelephony/CoreTelephony.h>
+@import CoreTelephony;
 
 @interface CallMonitor ()
 @property (nonatomic, strong) CTCallCenter *callCenter;

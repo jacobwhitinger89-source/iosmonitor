@@ -7,6 +7,5 @@ venv/
 .DS_Store
 server/captures/*
 !server/captures/.gitkeep
-*.deb
 packages/
 .theos/

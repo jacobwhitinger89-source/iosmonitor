@@ -1,6 +1,8 @@
 #import "include/monitor.h"
 #import <dlfcn.h>
-#import <IOSurface/IOSurface.h>
+#import <UIKit/UIKit.h>
+#import <CoreGraphics/CoreGraphics.h>
+#import <IOSurface/IOSurfaceRef.h>
 #import <mach/mach.h>
 
 typedef struct {
@@ -11,27 +13,19 @@ typedef struct {
 } ScreenBuffer;
 
 static BOOL captureScreenBuffer(ScreenBuffer *buf) {
-    void *handle = dlopen("/System/Library/PrivateFrameworks/IOMobileFramebuffer.framework/IOMobileFramebuffer", RTLD_NOLOAD);
-    if (!handle) {
-        handle = dlopen("/System/Library/PrivateFrameworks/IOMobileFramebuffer.framework/IOMobileFramebuffer", RTLD_LAZY);
-    }
+    void *handle = dlopen("/System/Library/PrivateFrameworks/IOMobileFramebuffer.framework/IOMobileFramebuffer", RTLD_LAZY);
     if (!handle) return NO;
 
     CFTypeRef (*IOMobileFramebufferCreate)(CFAllocatorRef) = dlsym(handle, "IOMobileFramebufferCreate");
-    CFTypeRef (*IOMobileFramebufferGetMainDisplay)(CFTypeRef) = dlsym(handle, "IOMobileFramebufferGetMainDisplay");
     int (*IOMobileFramebufferGetLayerDefaultSurface)(CFTypeRef, int, CFTypeRef *) = dlsym(handle, "IOMobileFramebufferGetLayerDefaultSurface");
 
-    if (!IOMobileFramebufferCreate || !IOMobileFramebufferGetMainDisplay || !IOMobileFramebufferGetLayerDefaultSurface) {
+    if (!IOMobileFramebufferCreate || !IOMobileFramebufferGetLayerDefaultSurface) {
         dlclose(handle);
         return NO;
     }
 
     CFTypeRef fb = IOMobileFramebufferCreate(kCFAllocatorDefault);
     if (!fb) { dlclose(handle); return NO; }
-
-    CFTypeRef mainDisplay = NULL;
-    IOMobileFramebufferGetMainDisplay(fb);
-    if (mainDisplay) CFRelease(mainDisplay);
 
     CFTypeRef surface = NULL;
     int ret = IOMobileFramebufferGetLayerDefaultSurface(fb, 0, &surface);

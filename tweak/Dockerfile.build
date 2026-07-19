@@ -8,50 +8,48 @@ ENV PATH=$THEOS/bin:$PATH
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    perl \
-    python3 \
-    make \
-    curl \
-    wget \
-    xz-utils \
-    libssl-dev \
-    libplist-dev \
-    clang \
-    llvm \
-    lld \
-    gcc \
-    g++ \
-    pkg-config \
-    libtool \
-    automake \
-    autoconf \
-    libbz2-dev \
-    zlib1g-dev \
+    git perl python3 make curl wget xz-utils unzip \
+    libssl-dev clang llvm lld gcc g++ pkg-config \
+    libtool automake autoconf libbz2-dev zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Theos
-RUN git clone --recursive https://github.com/theos/theos.git $THEOS
+# Install Theos using the official installer
+RUN curl -fsSL https://raw.github.com/theos/theos/master/bin/install-theos | bash -s -- $THEOS
+
+# The install-theos script should set up the toolchain.
+# Verify clang exists and provide a fallback if not.
+RUN ls -la $THEOS/toolchain/linux/iphone/bin/clang 2>/dev/null || \
+    ls -la $THEOS/toolchain/*/iphone/bin/clang 2>/dev/null || \
+    echo "Toolchain not found, installing manually..."
+
+# If the toolchain wasn't installed, download it
+RUN if [ ! -f "$THEOS/toolchain/linux/iphone/bin/clang" ]; then \
+        echo "Downloading Theos toolchain for Linux..."; \
+        mkdir -p "$THEOS/toolchain/linux"; \
+        cd /tmp && \
+        TC_URL="https://github.com/theos/toolchain/releases/download/v1.14.0/iphone-toolchain-linux-aarch64.tar.xz"; \
+        wget -q "$TC_URL" -O toolchain.tar.xz && \
+        tar xf toolchain.tar.xz -C "$THEOS/toolchain/linux/" && \
+        rm toolchain.tar.xz || \
+        echo "Toolchain download failed"; \
+    fi
+
+# Verify/install SDK
+RUN ls $THEOS/sdks/*.sdk 2>/dev/null | head -1 || \
+    ( echo "No SDK found, downloading..."; \
+      cd /tmp && \
+      wget -q https://github.com/xybp888/iOS-SDKs/releases/download/iOS26.5-SDKs/iPhoneOS26.5.sdk.zip && \
+      unzip -q iPhoneOS26.5.sdk.zip -d $THEOS/sdks/ && \
+      rm -f iPhoneOS26.5.sdk.zip )
 
 # Install ldid (Linux port for code signing)
-RUN cd /tmp && \
+RUN which ldid 2>/dev/null || ( \
+    cd /tmp && \
     git clone https://github.com/ProcursusTeam/ldid.git && \
     cd ldid && \
     make -j$(nproc) && \
     cp ldid $THEOS/bin/ldid && \
-    rm -rf /tmp/ldid
-
-# Install iOS SDK (16.5 - compatible with iOS 17/18 compilation)
-# These are pre-extracted SDKs from Xcode
-RUN cd /tmp && \
-    wget -q https://github.com/xybp888/iOS-SDKs/releases/download/iOS16.5_iOS17.0_17.5/iOS16.5.sdk.zip && \
-    unzip -q iOS16.5.sdk.zip -d $THEOS/sdks/ && \
-    rm -f iOS16.5.sdk.zip
-
-# Set up Theos environment
-RUN echo 'export THEOS=/opt/theos' >> /etc/profile.d/theos.sh && \
-    echo 'export PATH=$THEOS/bin:$PATH' >> /etc/profile.d/theos.sh && \
-    chmod +x /etc/profile.d/theos.sh
+    rm -rf /tmp/ldid )
 
 WORKDIR /build
 COPY . .
